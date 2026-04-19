@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head><title>Icon Generator</title></head>
+<body>
+<canvas id="c16" width="16" height="16"></canvas>
+<canvas id="c48" width="48" height="48"></canvas>
+<canvas id="c128" width="128" height="128"></canvas>
+<script>
+// 아이콘을 Canvas로 직접 그려서 PNG data URL 생성
+function drawIcon(canvas) {
+  const s = canvas.width;
+  const ctx = canvas.getContext('2d');
+  const scale = s / 128;
+  
+  // 배경 그래디언트
+  const grad = ctx.createLinearGradient(0, 0, s, s);
+  grad.addColorStop(0, '#6366f1');
+  grad.addColorStop(1, '#8b5cf6');
+  
+  // 둥근 사각형 배경
+  const r = 24 * scale;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(s - r, 0);
+  ctx.quadraticCurveTo(s, 0, s, r);
+  ctx.lineTo(s, s - r);
+  ctx.quadraticCurveTo(s, s, s - r, s);
+  ctx.lineTo(r, s);
+  ctx.quadraticCurveTo(0, s, 0, s - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  
+  // 바 차트
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  const bars = [
+    { x: 34, y: 59, w: 10, h: 30 },
+    { x: 50, y: 44, w: 10, h: 45 },
+    { x: 66, y: 52, w: 10, h: 37 },
+    { x: 82, y: 36, w: 10, h: 53 },
+  ];
+  bars.forEach(b => {
+    ctx.fillRect(b.x * scale, b.y * scale, b.w * scale, b.h * scale);
+  });
+  
+  // 연결선
+  const points = [
+    [39, 49], [55, 34], [71, 42], [87, 26]
+  ];
+  ctx.strokeStyle = '#e0e7ff';
+  ctx.lineWidth = 2 * scale;
+  ctx.beginPath();
+  ctx.moveTo(points[0][0] * scale, points[0][1] * scale);
+  for (let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i][0] * scale, points[i][1] * scale);
+  }
+  ctx.stroke();
+  
+  // 연결 점
+  ctx.fillStyle = '#e0e7ff';
+  points.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p[0] * scale, p[1] * scale, 3 * scale, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+['c16', 'c48', 'c128'].forEach(id => {
+  const canvas = document.getElementById(id);
+  drawIcon(canvas);
+  // 다운로드 링크 생성
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = `icon${canvas.width}.png`;
+  a.textContent = `Download icon${canvas.width}.png`;
+  a.style.display = 'block';
+  a.style.margin = '10px';
+  document.body.appendChild(a);
+});
+</script>
+</body>
+</html>

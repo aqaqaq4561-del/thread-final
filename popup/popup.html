@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+  <title>Threads Data Collector</title>
+</head>
+<body>
+  <div class="container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h1>Threads Collector</h1>
+      </div>
+      <span class="version">v2.1</span>
+    </header>
+
+    <!-- 상태 표시 -->
+    <div id="status" class="status-card idle">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span id="statusText">대기 중</span>
+      </div>
+    </div>
+
+    <!-- 페이지 정보 -->
+    <div id="pageInfo" class="page-info hidden">
+      <div class="info-row">
+        <span class="info-label">계정</span>
+        <div class="info-right">
+          <strong id="accountId">—</strong>
+          <button id="btnRefresh" class="btn-icon" title="페이지 새로고침">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 1v5h5"/>
+              <path d="M3.51 10a6 6 0 1 0 .7-6.7L1 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="info-label">수집 게시글</span>
+        <strong id="postCount">0</strong><span class="info-unit">개</span>
+      </div>
+    </div>
+
+    <!-- 에러 메시지 -->
+    <div id="errorMsg" class="error-msg hidden">
+      <p id="errorText"></p>
+    </div>
+
+    <!-- 버튼 영역 -->
+    <div class="button-group">
+      <button id="btnStart" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4 2l10 6-10 6V2z"/>
+        </svg>
+        수집 시작
+      </button>
+      <button id="btnStop" class="btn btn-danger hidden">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <rect x="3" y="3" width="10" height="10" rx="1"/>
+        </svg>
+        중지
+      </button>
+      <button id="btnDownload" class="btn btn-success hidden">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        CSV 다운로드
+      </button>
+    </div>
+
+    <!-- 사용 안내 -->
+    <div class="guide">
+      <p class="guide-title">📋 사용법</p>
+      <ol>
+        <li>Threads에서 수집할 <strong>계정 프로필</strong> 페이지로 이동</li>
+        <li><strong>"수집 시작"</strong> 클릭 → 자동 스크롤 & 데이터 수집</li>
+        <li>수집 완료 후 <strong>"CSV 다운로드"</strong>로 저장</li>
+      </ol>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

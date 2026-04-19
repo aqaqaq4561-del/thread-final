@@ -1,0 +1,40 @@
+/* ============================================
+   Threads Data Collector — Page Overlay Styles
+   수집 진행 중 페이지에 표시되는 오버레이 UI
+   (현재는 예약만, 추후 진행바 등 추가 가능)
+   ============================================ */
+
+/* 필요 시 content.js에서 동적으로 오버레이 요소를 삽입하여 사용 */
+
+/* 예시: 수집 상태 플로팅 배지 */
+.tdc-floating-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(26, 26, 46, 0.95);
+  color: #e4e6ea;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.tdc-floating-badge .tdc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #818cf8;
+  animation: tdc-pulse 1.5s infinite;
+}
+
+@keyframes tdc-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
