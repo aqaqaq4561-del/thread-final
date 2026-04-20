@@ -93,21 +93,18 @@
     const viewCounts = {};
     let successCount = 0;
     let failCount = 0;
+    let doneCount = 0;
 
-    for (let i = 0; i < posts.length; i++) {
-      const { postId, code } = posts[i];
-
+    // 개별 게시물 조회수 fetch
+    async function fetchOne({ postId, code }) {
       if (!code) {
         viewCounts[postId] = 0;
         failCount++;
-        continue;
+        return;
       }
 
       try {
-        // Same-origin fetch — 쿠키 자동 포함, CORS 없음
         const url = `https://www.threads.com/t/${code}`;
-        console.log(`[TDC Injected] (${i + 1}/${posts.length}) fetch: ${url}`);
-
         const resp = await originalFetch(url, {
           credentials: 'same-origin',
           headers: {
@@ -130,31 +127,34 @@
             successCount++;
           } else {
             console.warn(`[TDC Injected] ⚠️ 조회수 미발견 — /t/${code} (HTML length: ${html.length})`);
-            // 디버깅: view 관련 키워드 주변 텍스트 출력
             debugViewPatterns(html, code);
             failCount++;
           }
         }
-
-        // 진행 상황 전달
-        window.postMessage({
-          type: 'TDC_VIEW_COUNT_PROGRESS',
-          source: INTERCEPTOR_ID,
-          current: i + 1,
-          total: posts.length,
-          postId,
-          viewCount: viewCounts[postId]
-        }, '*');
-
-        // 레이트 리밋 방지: 300ms 간격
-        if (i < posts.length - 1) {
-          await new Promise(r => setTimeout(r, 300));
-        }
-
       } catch (e) {
         console.error(`[TDC Injected] fetch 오류:`, e);
         viewCounts[postId] = 0;
         failCount++;
+      }
+
+      doneCount++;
+      window.postMessage({
+        type: 'TDC_VIEW_COUNT_PROGRESS',
+        source: INTERCEPTOR_ID,
+        current: doneCount,
+        total: posts.length,
+        postId,
+        viewCount: viewCounts[postId] || 0
+      }, '*');
+    }
+
+    // 5개씩 병렬 처리, 배치 간 500ms 간격
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < posts.length; i += BATCH_SIZE) {
+      const batch = posts.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(fetchOne));
+      if (i + BATCH_SIZE < posts.length) {
+        await new Promise(r => setTimeout(r, 500));
       }
     }
 

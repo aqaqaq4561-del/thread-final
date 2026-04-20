@@ -34,7 +34,6 @@
         "content/scroller.js",
         "content/content.js"
       ],
-      "css": ["styles/overlay.css"],
       "run_at": "document_idle"
     }
   ],

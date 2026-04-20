@@ -135,6 +135,8 @@ class ThreadsPostParser {
       const info = post.text_post_app_info || {};
       const shareInfo = info.share_info || {};
 
+      const media = this._extractMediaURLs(post);
+
       const data = {
         postId: String(post.pk || post.id || ''),
         code: post.code || '',  // ★ 숏코드 (조회수 추출에 필수)
@@ -159,6 +161,8 @@ class ThreadsPostParser {
           ?? 0,
         likes: post.like_count ?? 0,
         views: 0,  // ★ 조회수: 나중에 background.js가 채워줌
+        imageURLs: media.imageURLs,
+        videoURLs: media.videoURLs,
       };
 
       tdcLog('파싱된 게시글:', {
@@ -179,6 +183,57 @@ class ThreadsPostParser {
       tdcLog('문제의 post 객체 키:', Object.keys(post));
       return null;
     }
+  }
+
+  // ============================================
+  // Private — 미디어 URL 추출
+  // ============================================
+
+  /**
+   * post 객체에서 이미지/동영상 URL 추출
+   * - 단일 미디어: image_versions2, video_versions
+   * - 캐러셀(다중): carousel_media[] 내 각 항목
+   */
+  _extractMediaURLs(post) {
+    const imageURLs = [];
+    const videoURLs = [];
+
+    if (post.carousel_media && Array.isArray(post.carousel_media)) {
+      for (const item of post.carousel_media) {
+        this._extractSingleMedia(item, imageURLs, videoURLs);
+      }
+    } else {
+      this._extractSingleMedia(post, imageURLs, videoURLs);
+    }
+
+    return { imageURLs, videoURLs };
+  }
+
+  /**
+   * 단일 미디어 객체에서 최고 해상도 URL 추출
+   * 동영상이 있으면 videoURLs에, 이미지는 imageURLs에 추가
+   */
+  _extractSingleMedia(mediaObj, imageURLs, videoURLs) {
+    if (mediaObj.video_versions && mediaObj.video_versions.length > 0) {
+      const best = this._getBestCandidate(mediaObj.video_versions);
+      if (best) videoURLs.push(best);
+    }
+
+    if (mediaObj.image_versions2?.candidates?.length > 0) {
+      const best = this._getBestCandidate(mediaObj.image_versions2.candidates);
+      if (best) imageURLs.push(best);
+    }
+  }
+
+  /**
+   * 후보 배열에서 최고 해상도 URL 선택
+   */
+  _getBestCandidate(candidates) {
+    if (!candidates || candidates.length === 0) return null;
+    const sorted = [...candidates].sort((a, b) =>
+      (b.width * b.height) - (a.width * a.height)
+    );
+    return sorted[0].url;
   }
 
   /**

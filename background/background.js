@@ -19,6 +19,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse({ success: true });
       break;
 
+    case 'DOWNLOAD_MEDIA':
+      handleMediaDownload(msg);
+      sendResponse({ success: true, count: msg.mediaItems.length });
+      break;
+
     case 'STATUS_UPDATE':
       // 상태 업데이트는 직접 팝업에 전달됨 (별도 처리 불요)
       break;
@@ -68,6 +73,72 @@ function handleCollectionComplete(msg) {
       collection_history: history.slice(0, 50)
     });
   });
+}
+
+/**
+ * 미디어 파일 일괄 다운로드 (게시글별 서브폴더)
+ *
+ * 폴더 구조:
+ *   threads_{account}_{date}/
+ *     001_{postId}/
+ *       info.txt   ← 게시글 내용 + 통계
+ *       img1.jpg, vid1.mp4 ...
+ *     002_{postId}/
+ *       ...
+ */
+async function handleMediaDownload({ posts, folder }) {
+  console.log(`[TDC Background] 미디어 다운로드 시작: ${posts.length}개 게시글 → ${folder}/`);
+
+  for (let i = 0; i < posts.length; i++) {
+    const post = posts[i];
+    const index = String(i + 1).padStart(3, '0');
+    const postFolder = `${folder}/${index}_${post.postId}`;
+
+    // info.txt — 게시글 내용 + 통계
+    const infoText = [
+      `계정: ${post.accountId}`,
+      `날짜: ${post.date}`,
+      ``,
+      `${post.content || '(내용 없음)'}`,
+      ``,
+      `좋아요: ${post.likes ?? 0}`,
+      `댓글: ${post.comments ?? 0}`,
+      `리포스트: ${post.reposts ?? 0}`,
+      `공유: ${post.shares ?? 0}`,
+      `조회수: ${post.views ?? 0}`,
+    ].join('\n');
+
+    chrome.downloads.download({
+      url: 'data:text/plain;charset=utf-8,' + encodeURIComponent(infoText),
+      filename: `${postFolder}/info.txt`,
+      conflictAction: 'uniquify'
+    });
+
+    // 이미지
+    (post.imageURLs || []).forEach((url, j) => {
+      chrome.downloads.download({
+        url,
+        filename: `${postFolder}/img${j + 1}.jpg`,
+        conflictAction: 'uniquify'
+      });
+    });
+
+    // 동영상
+    (post.videoURLs || []).forEach((url, j) => {
+      chrome.downloads.download({
+        url,
+        filename: `${postFolder}/vid${j + 1}.mp4`,
+        conflictAction: 'uniquify'
+      });
+    });
+
+    // 게시글 간 간격 (레이트리밋 방지)
+    if (i < posts.length - 1) {
+      await new Promise(r => setTimeout(r, 300));
+    }
+  }
+
+  console.log(`[TDC Background] 미디어 다운로드 완료`);
 }
 
 /**

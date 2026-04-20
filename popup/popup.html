@@ -67,11 +67,28 @@
         </svg>
         중지
       </button>
-      <button id="btnDownload" class="btn btn-success hidden">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <div id="downloadGroup" class="download-row hidden">
+        <button id="btnDownload" class="btn btn-success btn-half">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 1v9M4 7l4 4 4-4M2 13h12"/>
+          </svg>
+          CSV
+        </button>
+        <button id="btnDownloadHTML" class="btn btn-report btn-half">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="1" width="12" height="14" rx="2"/>
+            <path d="M5 5h6M5 8h6M5 11h4"/>
+          </svg>
+          리포트
+        </button>
+      </div>
+      <button id="btnDownloadMedia" class="btn btn-secondary hidden">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="14" height="10" rx="1"/>
+          <path d="M1 6l4 3 3-2 4 4"/>
+          <circle cx="11.5" cy="5.5" r="1.5" fill="currentColor" stroke="none"/>
         </svg>
-        CSV 다운로드
+        미디어 다운로드
       </button>
     </div>
 

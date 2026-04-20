@@ -250,6 +250,53 @@
     return true;
   }
 
+  function triggerHTMLDownload() {
+    if (collectedPosts.size === 0) {
+      tdcWarn('다운로드할 데이터 없음');
+      return false;
+    }
+    const posts = Array.from(collectedPosts.values())
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const html = generateHTML(posts, getAccountId());
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const name = getAccountId().replace('@', '');
+    const date = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `threads_${name}_${date}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    tdcLog(`HTML 리포트 다운로드: ${posts.length}개 게시글`);
+    return true;
+  }
+
+  function triggerMediaDownload() {
+    if (collectedPosts.size === 0) {
+      tdcWarn('다운로드할 데이터 없음');
+      return false;
+    }
+
+    const mediaPosts = Array.from(collectedPosts.values())
+      .filter(p => (p.imageURLs?.length || 0) + (p.videoURLs?.length || 0) > 0)
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+    if (mediaPosts.length === 0) {
+      tdcWarn('수집된 미디어 없음 (이미지/동영상이 없는 게시글만 있음)');
+      return false;
+    }
+
+    const accountName = getAccountId().replace('@', '');
+    const date = new Date().toISOString().slice(0, 10);
+    const folder = `threads_${accountName}_${date}`;
+
+    tdcLog(`미디어 다운로드 요청: ${mediaPosts.length}개 게시글 → background`);
+    chrome.runtime.sendMessage({ type: 'DOWNLOAD_MEDIA', posts: mediaPosts, folder });
+    return true;
+  }
+
   // ============================================
   // 4. 메시지 리스너 (팝업 ↔ content)
   // ============================================
@@ -266,6 +313,13 @@
         break;
       case 'DOWNLOAD_CSV':
         sendResponse({ success: triggerCSVDownload(), postCount: collectedPosts.size });
+        break;
+      case 'DOWNLOAD_HTML':
+        sendResponse({ success: triggerHTMLDownload(), postCount: collectedPosts.size });
+        break;
+      case 'DOWNLOAD_MEDIA':
+        triggerMediaDownload();
+        sendResponse({ success: true, postCount: collectedPosts.size });
         break;
       case 'GET_STATUS':
         sendResponse({

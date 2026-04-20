@@ -246,6 +246,36 @@ body {
   background: linear-gradient(135deg, #059669, #047857);
 }
 
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  color: #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-report {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #fff;
+}
+
+.btn-report:hover {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+/* CSV + 리포트 나란히 배치 */
+.download-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-half {
+  flex: 1;
+}
+
 /* --- Guide --- */
 .guide {
   background: rgba(255, 255, 255, 0.02);

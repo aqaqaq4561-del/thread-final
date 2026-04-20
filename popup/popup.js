@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnStart = document.getElementById('btnStart');
   const btnStop = document.getElementById('btnStop');
   const btnDownload = document.getElementById('btnDownload');
+  const btnDownloadHTML = document.getElementById('btnDownloadHTML');
+  const downloadGroup = document.getElementById('downloadGroup');
+  const btnDownloadMedia = document.getElementById('btnDownloadMedia');
+  const btnRefresh = document.getElementById('btnRefresh');
   const statusCard = document.getElementById('status');
   const statusText = document.getElementById('statusText');
   const postCountEl = document.getElementById('postCount');
@@ -53,6 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // --- 페이지 새로고침 ---
+  btnRefresh.addEventListener('click', () => {
+    queryActiveTab((tab) => {
+      if (tab) chrome.tabs.reload(tab.id);
+    });
+  });
+
   // --- 수집 시작 ---
   btnStart.addEventListener('click', () => {
     hideError();
@@ -83,7 +94,29 @@ document.addEventListener('DOMContentLoaded', () => {
     queryActiveTab((tab) => {
       chrome.tabs.sendMessage(tab.id, { type: 'DOWNLOAD_CSV' }, (res) => {
         if (res && res.success) {
-          statusText.textContent = '📥 다운로드 완료!';
+          statusText.textContent = '📥 CSV 다운로드 완료!';
+        }
+      });
+    });
+  });
+
+  // --- HTML 리포트 다운로드 ---
+  btnDownloadHTML.addEventListener('click', () => {
+    queryActiveTab((tab) => {
+      chrome.tabs.sendMessage(tab.id, { type: 'DOWNLOAD_HTML' }, (res) => {
+        if (res && res.success) {
+          statusText.textContent = '📄 리포트 다운로드 완료!';
+        }
+      });
+    });
+  });
+
+  // --- 미디어 다운로드 ---
+  btnDownloadMedia.addEventListener('click', () => {
+    queryActiveTab((tab) => {
+      chrome.tabs.sendMessage(tab.id, { type: 'DOWNLOAD_MEDIA' }, (res) => {
+        if (res && res.success) {
+          statusText.textContent = `🖼️ 미디어 다운로드 시작!`;
         }
       });
     });
@@ -125,7 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText.textContent = '🔄 수집 중...';
         btnStart.classList.add('hidden');
         btnStop.classList.remove('hidden');
-        btnDownload.classList.add('hidden');
+        downloadGroup.classList.add('hidden');
+        btnDownloadMedia.classList.add('hidden');
         break;
 
       case 'complete':
@@ -134,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnStart.classList.remove('hidden');
         btnStart.textContent = '🔄 다시 수집';
         btnStop.classList.add('hidden');
-        btnDownload.classList.remove('hidden');
+        downloadGroup.classList.remove('hidden');
+        btnDownloadMedia.classList.remove('hidden');
         break;
 
       case 'stopped':
@@ -142,7 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText.textContent = `⏸ 수집 중지됨 (${count}개)`;
         btnStart.classList.remove('hidden');
         btnStop.classList.add('hidden');
-        if (count > 0) btnDownload.classList.remove('hidden');
+        if (count > 0) {
+          downloadGroup.classList.remove('hidden');
+          btnDownloadMedia.classList.remove('hidden');
+        }
         break;
 
       case 'error':
@@ -150,7 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText.textContent = '⚠️ 오류 발생';
         btnStart.classList.remove('hidden');
         btnStop.classList.add('hidden');
-        btnDownload.classList.add('hidden');
+        downloadGroup.classList.add('hidden');
+        btnDownloadMedia.classList.add('hidden');
         break;
 
       default:
@@ -158,7 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText.textContent = '대기 중';
         btnStart.classList.remove('hidden');
         btnStop.classList.add('hidden');
-        btnDownload.classList.add('hidden');
+        downloadGroup.classList.add('hidden');
+        btnDownloadMedia.classList.add('hidden');
     }
   }
 
