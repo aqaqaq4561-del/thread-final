@@ -27,7 +27,7 @@ function parseMetricNumber(text) {
  * @returns {string} CSV 문자열 (UTF-8 BOM 포함)
  */
 function convertToCSV(posts) {
-  const headers = ['계정ID', '글내용', '작성일시', '댓글수', '리포스트수', '공유수', '좋아요수', '조회수', '이미지URL', '동영상URL'];
+  const headers = ['계정ID', '글내용', '작성일시', '댓글수', '리포스트수', '공유수', '좋아요수', '조회수', '게시글링크', '이미지URL', '동영상URL'];
 
   const rows = posts.map(p => [
     p.accountId,
@@ -38,6 +38,7 @@ function convertToCSV(posts) {
     p.shares,
     p.likes,
     p.views || 0,
+    p.code ? `https://www.threads.com/t/${p.code}` : '',
     '"' + (p.imageURLs || []).join('|') + '"',
     '"' + (p.videoURLs || []).join('|') + '"'
   ]);
